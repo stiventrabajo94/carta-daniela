@@ -35,7 +35,6 @@ body.is-dark {
   background: radial-gradient(circle at 50% 65%, #12060b, var(--bg-pitch) 75%);
 }
 
-/* Fondo cósmico más profundo tras el Big Bang */
 body.is-cosmic {
   background: radial-gradient(circle at 50% 50%, #120824 0%, #06030f 65%, #020107 100%);
 }
@@ -60,7 +59,6 @@ body.is-cosmic {
   gap: 24px;
 }
 
-/* Resplandor de la vela */
 .ambient-glow {
   position: fixed;
   width: 460px;
@@ -80,13 +78,11 @@ body.is-lit .ambient-glow {
   opacity: 1;
 }
 
-/* Destello intenso al activar Big Bang */
 body.is-supernova .ambient-glow {
   background: radial-gradient(circle, rgba(255, 250, 220, 0.85) 0%, rgba(255, 183, 3, 0.45) 35%, rgba(168, 85, 247, 0.18) 65%, transparent 80%);
   transform: translate(-50%, -50%) scale(2.4) !important;
 }
 
-/* Corazones flotantes */
 .hearts {
   position: fixed;
   inset: 0;
@@ -125,7 +121,6 @@ body.is-lit .hearts {
   }
 }
 
-/* Carta */
 .letter-card {
   position: relative;
   width: 100%;
@@ -181,23 +176,13 @@ body.is-lit .letter-card {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
 }
 
-/* Galería de 3 fotos */
+/* Galería con aparición secuencial cada 5 segundos */
 .photo-gallery {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 18px;
   flex-wrap: wrap;
-  opacity: 0;
-  transform: translateY(20px);
-  pointer-events: none;
-  transition: opacity 1s ease 0.55s, transform 1s cubic-bezier(0.22, 1, 0.36, 1) 0.55s;
-}
-
-body.is-lit .photo-gallery {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
 }
 
 .photo-frame {
@@ -208,15 +193,24 @@ body.is-lit .photo-gallery {
   box-shadow:
     0 10px 24px rgba(0, 0, 0, 0.65),
     0 0 16px rgba(255, 195, 90, 0.12);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0;
+  transform: translateY(22px) scale(0.92);
+  pointer-events: none;
+  transition: opacity 0.85s ease, transform 0.85s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
 }
 
-.photo-frame:nth-child(1) { transform: rotate(-3deg); }
-.photo-frame:nth-child(2) { transform: rotate(1.5deg); }
-.photo-frame:nth-child(3) { transform: rotate(3.5deg); }
+.photo-frame[data-index="0"] { --tilt: -3deg; }
+.photo-frame[data-index="1"] { --tilt: 1.5deg; }
+.photo-frame[data-index="2"] { --tilt: 3.5deg; }
 
-.photo-frame:hover {
-  transform: scale(1.07) rotate(0deg) !important;
+.photo-frame.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1) rotate(var(--tilt));
+  pointer-events: auto;
+}
+
+.photo-frame.is-visible:hover {
+  transform: translateY(-4px) scale(1.07) rotate(0deg);
   box-shadow: 0 14px 32px rgba(0, 0, 0, 0.8);
   z-index: 4;
 }
@@ -229,7 +223,6 @@ body.is-lit .photo-gallery {
   border: 1px solid #ececec;
 }
 
-/* Vela */
 .candle-scene {
   display: flex;
   flex-direction: column;
@@ -352,7 +345,6 @@ body.is-supernova .flame-outer {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
 }
 
-/* Botón BIG BANG debajo de la vela */
 .bigbang-btn {
   margin-top: 18px;
   padding: 11px 26px;
