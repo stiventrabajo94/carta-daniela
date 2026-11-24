@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Para Daniela</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="is-dark">
+  <!-- Lienzo cósmico para el Big Bang y el corazón de galaxias -->
+  <canvas id="galaxyCanvas"></canvas>
+
+  <div class="ambient-glow" id="glow"></div>
+  <div class="hearts" id="hearts"></div>
+
+  <main class="scene">
+    <article class="letter-card" id="letterCard">
+      <h1 class="letter-greeting">Mi amor Daniela</h1>
+      <p class="letter-body">
+        Eres lo más hermoso para mi vida, te amo mi amor, doy gracias por cada día que comparto contigo, hice esto para demostrarte que hasta estudiando pienso en ti y como darte detalles más únicos.
+      </p>
+      <div class="seal" aria-hidden="true">❤</div>
+    </article>
+
+    <div class="photo-gallery" id="photoGallery">
+      <div class="photo-frame">
+        <img src="foto1.jpg" alt="Nuestra foto 1" class="polaroid-img">
+      </div>
+      <div class="photo-frame">
+        <img src="foto2.jpg" alt="Nuestra foto 2" class="polaroid-img">
+      </div>
+      <div class="photo-frame">
+        <img src="foto3.jpg" alt="Nuestra foto 3" class="polaroid-img">
+      </div>
+    </div>
+
+    <section class="candle-scene" aria-label="Vela interactiva">
+      <button type="button" class="ignite-btn" id="igniteBtn">
+        Toca para encender la vela ✨
+      </button>
+
+      <div class="flame-wrap" id="flame">
+        <div class="flame-outer"></div>
+        <div class="flame-inner"></div>
+      </div>
+      <div class="wick"></div>
+      <div class="candle" id="candleTrigger" title="Haz clic para encender">
+        <div class="drip d1"></div>
+        <div class="drip d2"></div>
+        <div class="drip d3"></div>
+        <div class="drip d4"></div>
+      </div>
+      <div class="plate"></div>
+
+      <!-- Botón BIG BANG debajo de la vela -->
+      <button type="button" class="bigbang-btn" id="bigBangBtn">
+        BIG BANG 🌌
+      </button>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
