@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="is-dark">
-  <!-- Lienzo cósmico para el Big Bang y el corazón de galaxias -->
   <canvas id="galaxyCanvas"></canvas>
 
   <div class="ambient-glow" id="glow"></div>
@@ -26,13 +25,13 @@
     </article>
 
     <div class="photo-gallery" id="photoGallery">
-      <div class="photo-frame">
+      <div class="photo-frame" data-index="0">
         <img src="Foto1.jpg" alt="Nuestra foto 1" class="polaroid-img">
       </div>
-      <div class="photo-frame">
+      <div class="photo-frame" data-index="1">
         <img src="Foto2.jpg" alt="Nuestra foto 2" class="polaroid-img">
       </div>
-      <div class="photo-frame">
+      <div class="photo-frame" data-index="2">
         <img src="Foto3.jpg" alt="Nuestra foto 3" class="polaroid-img">
       </div>
     </div>
@@ -55,7 +54,6 @@
       </div>
       <div class="plate"></div>
 
-      <!-- Botón BIG BANG debajo de la vela -->
       <button type="button" class="bigbang-btn" id="bigBangBtn">
         BIG BANG 🌌
       </button>
