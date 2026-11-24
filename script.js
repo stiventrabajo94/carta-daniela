@@ -1,376 +1,305 @@
-:root {
-  --bg-dark: #14070d;
-  --bg-mid: #280c19;
-  --bg-pitch: #050204;
-  --paper: #f2e3c6;
-  --paper-dark: #dcc59e;
-  --ink: #2b1d16;
-  --accent: #c92a42;
-  --flame-core: #fff7d6;
-  --flame-mid: #ffb703;
-  --flame-outer: #fb8500;
+const body = document.body;
+const igniteBtn = document.getElementById('igniteBtn');
+const candleTrigger = document.getElementById('candleTrigger');
+const bigBangBtn = document.getElementById('bigBangBtn');
+const flame = document.getElementById('flame');
+const glow = document.getElementById('glow');
+const heartsContainer = document.getElementById('hearts');
+const photoFrames = Array.from(document.querySelectorAll('.photo-frame'));
+
+const canvas = document.getElementById('galaxyCanvas');
+const ctx = canvas.getContext('2d');
+
+let isLit = false;
+let flameBoost = 1;
+let photoTimers = [];
+
+function mostrarTodasLasFotos() {
+  photoTimers.forEach((id) => clearTimeout(id));
+  photoTimers = [];
+  photoFrames.forEach((frame) => frame.classList.add('is-visible'));
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+function iniciarSecuenciaFotosCada5s() {
+  photoTimers.forEach((id) => clearTimeout(id));
+  photoTimers = [];
+  photoFrames.forEach((frame) => frame.classList.remove('is-visible'));
+
+  const intervaloMs = 5000; // 5 segundos entre cada foto
+  photoFrames.forEach((frame, idx) => {
+    const delay = intervaloMs * (idx + 1);
+    const timerId = setTimeout(() => {
+      frame.classList.add('is-visible');
+    }, delay);
+    photoTimers.push(timerId);
+  });
 }
 
-body {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 16px;
-  background: radial-gradient(circle at 50% 65%, var(--bg-mid), var(--bg-dark) 75%);
-  color: var(--ink);
-  font-family: 'Lora', serif;
-  overflow-x: hidden;
-  position: relative;
-  transition: background 1.2s ease;
+function encenderVela() {
+  if (isLit) return;
+  isLit = true;
+  body.classList.remove('is-dark');
+  body.classList.add('is-lit');
+  iniciarSecuenciaFotosCada5s();
 }
 
-body.is-dark {
-  background: radial-gradient(circle at 50% 65%, #12060b, var(--bg-pitch) 75%);
+igniteBtn.addEventListener('click', encenderVela);
+candleTrigger.addEventListener('click', encenderVela);
+
+// Corazones suaves de fondo
+for (let i = 0; i < 16; i++) {
+  const heart = document.createElement('span');
+  heart.className = 'heart';
+  heart.textContent = '♥';
+  heart.style.left = `${Math.random() * 100}%`;
+  heart.style.fontSize = `${12 + Math.random() * 14}px`;
+  heart.style.animationDuration = `${7 + Math.random() * 8}s`;
+  heart.style.animationDelay = `${-Math.random() * 10}s`;
+  heartsContainer.appendChild(heart);
 }
 
-body.is-cosmic {
-  background: radial-gradient(circle at 50% 50%, #120824 0%, #06030f 65%, #020107 100%);
-}
+// Parpadeo de la vela
+setInterval(() => {
+  if (!isLit) return;
 
-#galaxyCanvas {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-}
+  const scaleX = (0.92 + Math.random() * 0.18) * flameBoost;
+  const scaleY = (0.9 + Math.random() * 0.22) * flameBoost;
+  const skew = (Math.random() - 0.5) * 8;
+  flame.style.transform = `scale(${scaleX.toFixed(2)}, ${scaleY.toFixed(2)}) skewX(${skew.toFixed(1)}deg)`;
 
-.scene {
-  position: relative;
-  z-index: 3;
-  width: 100%;
-  max-width: 680px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-}
-
-.ambient-glow {
-  position: fixed;
-  width: 460px;
-  height: 460px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 183, 3, 0.18) 0%, rgba(251, 133, 0, 0.06) 45%, transparent 70%);
-  top: 55%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0;
-  transition: opacity 0.8s ease, transform 0.2s ease-out, background 0.6s ease;
-}
-
-body.is-lit .ambient-glow {
-  opacity: 1;
-}
-
-body.is-supernova .ambient-glow {
-  background: radial-gradient(circle, rgba(255, 250, 220, 0.85) 0%, rgba(255, 183, 3, 0.45) 35%, rgba(168, 85, 247, 0.18) 65%, transparent 80%);
-  transform: translate(-50%, -50%) scale(2.4) !important;
-}
-
-.hearts {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 0;
-  opacity: 0;
-  transition: opacity 1.2s ease;
-}
-
-body.is-lit .hearts {
-  opacity: 1;
-}
-
-.heart {
-  position: absolute;
-  bottom: -30px;
-  color: rgba(255, 105, 140, 0.24);
-  animation: floatUp linear infinite;
-}
-
-@keyframes floatUp {
-  0% {
-    transform: translateY(0) scale(0.85) rotate(0deg);
-    opacity: 0;
+  if (!body.classList.contains('is-supernova')) {
+    const glowScale = 0.94 + Math.random() * 0.14;
+    glow.style.transform = `translate(-50%, -50%) scale(${glowScale.toFixed(2)})`;
   }
-  15% {
-    opacity: 1;
+}, 110);
+
+// --- SISTEMA BIG BANG & CORAZÓN DE GALAXIAS ---
+let width = (canvas.width = window.innerWidth);
+let height = (canvas.height = window.innerHeight);
+
+window.addEventListener('resize', () => {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+});
+
+const galaxyColors = [
+  '#ff4d8d',
+  '#c77dff',
+  '#ffd166',
+  '#4cc9f0',
+  '#ff85a1',
+  '#ffffff'
+];
+
+let particles = [];
+let miniGalaxies = [];
+let shockwaves = [];
+let phase = 'idle';
+let phaseTimer = 0;
+let heartBeat = 0;
+
+function getHeartPoint(t, scale) {
+  const x = 16 * Math.pow(Math.sin(t), 3);
+  const y = -(
+    13 * Math.cos(t) -
+    5 * Math.cos(2 * t) -
+    2 * Math.cos(3 * t) -
+    Math.cos(4 * t)
+  );
+  return { x: x * scale, y: y * scale };
+}
+
+function triggerBigBang() {
+  if (!isLit) encenderVela();
+  mostrarTodasLasFotos();
+
+  body.classList.add('is-cosmic', 'is-supernova');
+  flameBoost = 1.65;
+
+  setTimeout(() => {
+    body.classList.remove('is-supernova');
+    flameBoost = 1.15;
+  }, 900);
+
+  const flameRect = flame.getBoundingClientRect();
+  const originX = flameRect.left + flameRect.width / 2 || width / 2;
+  const originY = flameRect.top + flameRect.height / 2 || height * 0.72;
+
+  const centerX = width / 2;
+  const centerY = height * 0.45;
+  const heartScale = Math.min(width, height) * 0.025;
+
+  particles = [];
+  miniGalaxies = [];
+  shockwaves = [
+    { x: originX, y: originY, radius: 4, alpha: 1, color: '#fff3b0' },
+    { x: originX, y: originY, radius: 1, alpha: 0.85, color: '#e0aaff' }
+  ];
+
+  const totalParticles = 380;
+  for (let i = 0; i < totalParticles; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 3 + Math.random() * 14;
+    const t = (i / totalParticles) * Math.PI * 2 + (Math.random() - 0.5) * 0.12;
+    const thickness = 0.82 + Math.random() * 0.34;
+    const targetOffset = getHeartPoint(t, heartScale * thickness);
+
+    particles.push({
+      x: originX,
+      y: originY,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      offsetX: targetOffset.x,
+      offsetY: targetOffset.y,
+      size: 1.2 + Math.random() * 2.6,
+      color: galaxyColors[Math.floor(Math.random() * galaxyColors.length)],
+      twinkle: Math.random() * Math.PI * 2,
+      ease: 0.022 + Math.random() * 0.025
+    });
   }
-  85% {
-    opacity: 0.9;
+
+  const totalGalaxies = 28;
+  for (let i = 0; i < totalGalaxies; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2.5 + Math.random() * 10;
+    const t = (i / totalGalaxies) * Math.PI * 2;
+    const targetOffset = getHeartPoint(t, heartScale);
+
+    miniGalaxies.push({
+      x: originX,
+      y: originY,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      offsetX: targetOffset.x,
+      offsetY: targetOffset.y,
+      radius: 10 + Math.random() * 10,
+      rotation: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() > 0.5 ? 1 : -1) * (0.02 + Math.random() * 0.03),
+      color1: galaxyColors[i % galaxyColors.length],
+      color2: galaxyColors[(i + 2) % galaxyColors.length],
+      ease: 0.02 + Math.random() * 0.015
+    });
   }
-  100% {
-    transform: translateY(-110vh) scale(1.15) rotate(18deg);
-    opacity: 0;
+
+  phase = 'explode';
+  phaseTimer = 0;
+  bigBangBtn.textContent = 'UNIVERSO CREADO ✨';
+}
+
+bigBangBtn.addEventListener('click', triggerBigBang);
+
+function drawMiniGalaxy(g) {
+  ctx.save();
+  ctx.translate(g.x, g.y);
+  ctx.rotate(g.rotation);
+
+  const grad = ctx.createRadialGradient(0, 0, 1, 0, 0, g.radius);
+  grad.addColorStop(0, '#ffffff');
+  grad.addColorStop(0.3, g.color1);
+  grad.addColorStop(0.7, g.color2 + '55');
+  grad.addColorStop(1, 'transparent');
+
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(0, 0, g.radius, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = g.color1 + 'aa';
+  ctx.lineWidth = 1.2;
+  for (let arm = 0; arm < 2; arm++) {
+    ctx.beginPath();
+    for (let a = 0; a < 3.5; a += 0.25) {
+      const r = a * (g.radius / 3.8);
+      const theta = a + arm * Math.PI;
+      const px = Math.cos(theta) * r;
+      const py = Math.sin(theta) * r * 0.65;
+      if (a === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
   }
+
+  ctx.restore();
 }
 
-.letter-card {
-  position: relative;
-  width: 100%;
-  max-width: 460px;
-  background: linear-gradient(160deg, rgba(242, 227, 198, 0.95), rgba(220, 197, 158, 0.95));
-  border-radius: 10px;
-  padding: 26px 24px 32px;
-  box-shadow:
-    0 20px 45px rgba(0, 0, 0, 0.65),
-    0 0 35px rgba(255, 175, 40, 0.14),
-    inset 0 0 24px rgba(138, 98, 52, 0.22);
-  border: 1px solid rgba(255, 240, 205, 0.45);
-  opacity: 0;
-  transform: translateY(24px) scale(0.96);
-  pointer-events: none;
-  transition: opacity 1s ease 0.25s, transform 1s cubic-bezier(0.22, 1, 0.36, 1) 0.25s;
+function animateUniverse() {
+  ctx.clearRect(0, 0, width, height);
+
+  if (phase !== 'idle') {
+    phaseTimer++;
+
+    for (let i = shockwaves.length - 1; i >= 0; i--) {
+      const sw = shockwaves[i];
+      sw.radius += 16;
+      sw.alpha -= 0.022;
+      if (sw.alpha <= 0) {
+        shockwaves.splice(i, 1);
+        continue;
+      }
+      ctx.save();
+      ctx.strokeStyle = sw.color;
+      ctx.globalAlpha = sw.alpha;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    if (phase === 'explode' && phaseTimer > 55) {
+      phase = 'heart';
+    }
+
+    const centerX = width / 2;
+    const centerY = height * 0.45;
+    heartBeat += 0.045;
+    const pulse = phase === 'heart' ? 1 + Math.sin(heartBeat) * 0.045 : 1;
+
+    for (const p of particles) {
+      if (phase === 'explode') {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= 0.96;
+        p.vy *= 0.96;
+      } else {
+        const tx = centerX + p.offsetX * pulse;
+        const ty = centerY + p.offsetY * pulse;
+        p.x += (tx - p.x) * p.ease;
+        p.y += (ty - p.y) * p.ease;
+      }
+
+      p.twinkle += 0.08;
+      const alpha = 0.55 + Math.sin(p.twinkle) * 0.45;
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0.2, alpha);
+      ctx.fillStyle = p.color;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    for (const g of miniGalaxies) {
+      g.rotation += g.rotSpeed;
+      if (phase === 'explode') {
+        g.x += g.vx;
+        g.y += g.vy;
+        g.vx *= 0.95;
+        g.vy *= 0.95;
+      } else {
+        const tx = centerX + g.offsetX * pulse;
+        const ty = centerY + g.offsetY * pulse;
+        g.x += (tx - g.x) * g.ease;
+        g.y += (ty - g.y) * g.ease;
+      }
+      drawMiniGalaxy(g);
+    }
+  }
+
+  requestAnimationFrame(animateUniverse);
 }
 
-body.is-lit .letter-card {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
-}
-
-.letter-greeting {
-  font-family: 'Great Vibes', cursive;
-  font-size: 2.45rem;
-  text-align: center;
-  color: #3a2216;
-  margin-bottom: 10px;
-}
-
-.letter-body {
-  font-style: italic;
-  font-size: 1rem;
-  line-height: 1.62;
-  text-align: center;
-  color: var(--ink);
-}
-
-.seal {
-  position: absolute;
-  right: 18px;
-  bottom: 14px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #e63950, var(--accent));
-  color: #fff;
-  display: grid;
-  place-items: center;
-  font-size: 0.95rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
-}
-
-/* Galería con aparición secuencial cada 5 segundos */
-.photo-gallery {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 18px;
-  flex-wrap: wrap;
-}
-
-.photo-frame {
-  background: #fff;
-  padding: 8px 8px 24px 8px;
-  width: 150px;
-  border-radius: 2px;
-  box-shadow:
-    0 10px 24px rgba(0, 0, 0, 0.65),
-    0 0 16px rgba(255, 195, 90, 0.12);
-  opacity: 0;
-  transform: translateY(22px) scale(0.92);
-  pointer-events: none;
-  transition: opacity 0.85s ease, transform 0.85s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
-}
-
-.photo-frame[data-index="0"] { --tilt: -3deg; }
-.photo-frame[data-index="1"] { --tilt: 1.5deg; }
-.photo-frame[data-index="2"] { --tilt: 3.5deg; }
-
-.photo-frame.is-visible {
-  opacity: 1;
-  transform: translateY(0) scale(1) rotate(var(--tilt));
-  pointer-events: auto;
-}
-
-.photo-frame.is-visible:hover {
-  transform: translateY(-4px) scale(1.07) rotate(0deg);
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.8);
-  z-index: 4;
-}
-
-.polaroid-img {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  display: block;
-  border: 1px solid #ececec;
-}
-
-.candle-scene {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 4px;
-}
-
-.ignite-btn {
-  margin-bottom: 14px;
-  padding: 10px 20px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 195, 90, 0.45);
-  background: rgba(255, 183, 3, 0.14);
-  color: #ffe8b3;
-  font-family: 'Lora', serif;
-  font-size: 0.92rem;
-  cursor: pointer;
-  box-shadow: 0 0 20px rgba(255, 183, 3, 0.2);
-  animation: pulseBtn 2s infinite ease-in-out;
-  transition: opacity 0.5s ease, transform 0.25s ease, background 0.25s ease;
-}
-
-.ignite-btn:hover {
-  background: rgba(255, 183, 3, 0.26);
-  transform: scale(1.04);
-}
-
-body.is-lit .ignite-btn {
-  opacity: 0;
-  pointer-events: none;
-  height: 0;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-
-@keyframes pulseBtn {
-  0%, 100% { box-shadow: 0 0 14px rgba(255, 183, 3, 0.18); }
-  50% { box-shadow: 0 0 26px rgba(255, 183, 3, 0.42); }
-}
-
-.flame-wrap {
-  position: relative;
-  width: 28px;
-  height: 54px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  margin-bottom: 2px;
-  transform-origin: bottom center;
-  opacity: 0;
-  transform: scale(0.1);
-  transition: opacity 0.6s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-body.is-lit .flame-wrap {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.flame-outer {
-  width: 22px;
-  height: 46px;
-  border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
-  background: radial-gradient(circle at 50% 70%, var(--flame-mid), var(--flame-outer) 75%, rgba(251, 133, 0, 0));
-  box-shadow: 0 0 22px var(--flame-mid), 0 0 42px var(--flame-outer);
-  transition: box-shadow 0.4s ease, filter 0.4s ease;
-}
-
-body.is-supernova .flame-outer {
-  box-shadow: 0 0 55px #fff, 0 0 95px #ffd166, 0 0 140px #c77dff;
-  filter: brightness(1.6);
-}
-
-.flame-inner {
-  position: absolute;
-  bottom: 3px;
-  width: 10px;
-  height: 24px;
-  border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%;
-  background: var(--flame-core);
-}
-
-.wick {
-  width: 3px;
-  height: 8px;
-  background: #222;
-  border-radius: 2px;
-}
-
-.candle {
-  width: 80px;
-  height: 104px;
-  border-radius: 10px 10px 14px 14px;
-  background: linear-gradient(90deg, #8c5319 0%, #d4882a 28%, #f3b340 55%, #b56d1d 85%, #754210 100%);
-  position: relative;
-  cursor: pointer;
-  box-shadow: inset 0 -10px 18px rgba(0, 0, 0, 0.35), 0 12px 24px rgba(0, 0, 0, 0.55);
-}
-
-.drip {
-  position: absolute;
-  top: 0;
-  width: 11px;
-  border-radius: 0 0 10px 10px;
-  background: linear-gradient(180deg, #f7c552, #c97d22);
-}
-
-.drip.d1 { left: 10px; height: 32px; }
-.drip.d2 { left: 25px; height: 48px; }
-.drip.d3 { left: 44px; height: 26px; }
-.drip.d4 { left: 59px; height: 40px; }
-
-.plate {
-  width: 126px;
-  height: 18px;
-  margin-top: -4px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, #e5a93c 0%, #8a5216 75%, #4a2908 100%);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
-}
-
-.bigbang-btn {
-  margin-top: 18px;
-  padding: 11px 26px;
-  border-radius: 999px;
-  border: 1px solid rgba(216, 180, 254, 0.6);
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.35), rgba(236, 72, 153, 0.35));
-  color: #fff;
-  font-family: 'Lora', serif;
-  font-weight: 600;
-  letter-spacing: 2px;
-  font-size: 0.92rem;
-  cursor: pointer;
-  box-shadow: 0 0 22px rgba(236, 72, 153, 0.35), inset 0 0 12px rgba(255, 255, 255, 0.15);
-  opacity: 0;
-  transform: translateY(10px) scale(0.95);
-  pointer-events: none;
-  transition: opacity 0.8s ease 0.9s, transform 0.35s ease, box-shadow 0.3s ease;
-}
-
-body.is-lit .bigbang-btn {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
-}
-
-.bigbang-btn:hover {
-  transform: scale(1.06);
-  box-shadow: 0 0 32px rgba(236, 72, 153, 0.65), 0 0 18px rgba(168, 85, 247, 0.6);
-}
+animateUniverse();
